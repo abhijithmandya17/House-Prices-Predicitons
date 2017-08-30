@@ -30,8 +30,8 @@ preprocess <- function(){
   
   # Return the final processed train and test set
   ret <- list()
-  ret$train <- train
-  ret$test <- test
+  ret$train <- complete_train
+  ret$test <- complete_test
   return(ret)
 }
 

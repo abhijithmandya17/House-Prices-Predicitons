@@ -12,28 +12,81 @@ preprocess <- function(){
   test <- read_csv("test.csv")
   
   # Convert all character to factors
-  for(i in colnames(train)){
-    text <- sprintf("train$\'%s\'", i)
-    res <- eval(parse(text = text))
-    if(is.character(res)){
-      text2 <- sprintf("train$\'%s\' <- as.factor(train$\'%s\')", i, i)
-      eval(parse(text = text2))
-    }
-  }
+  factor_train <- to_factor(train)
+  factor_test <- to_factor(test)
   
-  for(i in colnames(test)){
-    text <- sprintf("test$\'%s\'", i)
-    res <- eval(parse(text = text))
-    if(is.character(res)){
-      text2 <- sprintf("test$\'%s\' <- as.factor(test$\'%s\')", i, i)
-      eval(parse(text = text2))
-    }
-  }
+  # Remove columns with high NA density
+  problem_columns <- drop_cols(train, 0.1)
+  filtered_train <- factor_train[ , !(names(factor_train) %in% problem_columns)]
+  filtered_test <- factor_test[ , !(names(factor_test) %in% problem_columns)]
   
+  # Fill in the missing numeric with mean
+  numeric_complete_train <- fill_na_num(filtered_train)
+  numeric_complete_test <- fill_na_num(filtered_test)
+  
+  # Fill in the missing factor with the most common category
+  complete_train <- fill_na_fac(numeric_complete_train)
+  complete_test <- fill_na_fac(numeric_complete_test)
   
   # Return the final processed train and test set
   ret <- list()
   ret$train <- train
   ret$test <- test
   return(ret)
+}
+
+
+# Function to drop problem columns based on density of NA values
+drop_cols <- function(df, threshold){
+  problem_columns <- c()
+  for(i in 1:ncol(df)){
+    if(sum(is.na(df[, i]))/nrow(df) > threshold){
+      print(paste("Dropping: ", names(df[, i])))
+      problem_columns <- c(problem_columns, names(df[, i]))
+    }
+  }
+  
+  return(problem_columns)
+}
+
+# Converts all characters columsn to factors
+to_factor <- function(df){
+  for(i in colnames(df)){
+    text <- sprintf("df$\'%s\'", i)
+    res <- eval(parse(text = text))
+    if(is.character(res)){
+      text2 <- sprintf("df$\'%s\' <- as.factor(df$\'%s\')", i, i)
+      eval(parse(text = text2))
+    }
+  }
+  
+  return(df)
+}
+
+# Function to fill in numeric NA with the mean
+fill_na_num <- function(df){
+  for(i in colnames(df)){
+    text <- sprintf("df$\'%s\'", i)
+    res <- eval(parse(text = text))
+    if(is.numeric(res)){
+      text2 <- sprintf("df$\'%s\'[is.na(df$\'%s\')] <- mean(df$\'%s\', na.rm = T)", i, i, i)
+      eval(parse(text = text2))
+    }
+  }
+  
+  return(df)
+}
+
+# Fill in the missing categorical data with the most common category
+fill_na_fac <- function(df){
+  for(i in colnames(df)){
+    text <- sprintf("df$\'%s\'", i)
+    res <- eval(parse(text = text))
+    if(is.factor(res)){
+      text2 <- sprintf("df$\'%s\'[is.na(df$\'%s\')] <- names(which.max(table(df$\'%s\')))", i, i, i)
+      eval(parse(text = text2))
+    }
+  }
+  
+  return(df)
 }

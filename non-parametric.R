@@ -1,7 +1,8 @@
 # Kaggle Housing Competition
 
+library(randomForest)
 library(tidyverse)
-
+library("party")
 source("preprocess.R")
 
 # This file houses the code for the non-parametric approach
@@ -24,8 +25,9 @@ for(i in 1:(ncol(train) - 1)){
 # test1 <- train[-n, -c(1, ncol(train))]
 # true <- train[-n, ncol(train)]
 
-rand <- randomForest(SalePrice ~ . - Id, train, ntree = 1000, importance = T)
+rand <- randomForest(SalePrice ~ . - Id, train, ntree = 2000, importance = T)
 preds <- predict(rand, test)
+
 
 results <- data.frame(as.integer(test$Id), preds)
 colnames(results) <- c("Id", "SalePrice")

@@ -14,26 +14,43 @@ preprocess <- function(cutoff = 0.1){
   train <- read_csv("train.csv")
   test <- read_csv("test.csv")
   
-  # Rename 
-  rename_train <- rename_cols(train)
-  rename_test <- rename_cols(test)
+  complete_train <- train %>% 
+    rename_cols() %>% 
+    add_None() %>% 
+    to_factor()  %>% 
+    fill_na_num() %>% 
+    fill_na_fac()
   
-  # Convert all character to factors
-  factor_train <- to_factor(rename_train)
-  factor_test <- to_factor(rename_test)
-  
-  # Remove columns with high NA density
-  problem_columns <- drop_cols(train, cutoff)
-  filtered_train <- factor_train[ , !(names(factor_train) %in% problem_columns)]
-  filtered_test <- factor_test[ , !(names(factor_test) %in% problem_columns)]
-  
-  # Fill in the missing numeric with mean
-  numeric_complete_train <- fill_na_num(filtered_train)
-  numeric_complete_test <- fill_na_num(filtered_test)
-  
-  # Fill in the missing factor with the most common category
-  complete_train <- fill_na_fac(numeric_complete_train)
-  complete_test <- fill_na_fac(numeric_complete_test)
+  complete_test <- test %>% 
+    rename_cols() %>% 
+    add_None() %>% 
+    to_factor()  %>% 
+    fill_na_num() %>% 
+    fill_na_fac()
+  # # Rename 
+  # rename_train <- rename_cols(train)
+  # rename_test <- rename_cols(test)
+  # 
+  # # Add nones for NA's
+  # rename_train <- add_None(rename_train)
+  # rename_test <- add_None(rename_test)
+  # 
+  # # Convert all character to factors
+  # factor_train <- to_factor(rename_train)
+  # factor_test <- to_factor(rename_test)
+  # 
+  # # Remove columns with high NA density
+  # problem_columns <- drop_cols(train, 0.1)
+  # filtered_train <- factor_train[ , !(names(factor_train) %in% problem_columns)]
+  # filtered_test <- factor_test[ , !(names(factor_test) %in% problem_columns)]
+  # 
+  # # Fill in the missing numeric with mean
+  # numeric_complete_train <- fill_na_num(filtered_train)
+  # numeric_complete_test <- fill_na_num(filtered_test)
+  # 
+  # # Fill in the missing factor with the most common category
+  # complete_train <- fill_na_fac(numeric_complete_train)
+  # complete_test <- fill_na_fac(numeric_complete_test)
   
   
   # Return the final processed train and test set
@@ -87,16 +104,15 @@ fill_na_num <- function(df){
 
 # Fill in the missing categorical data with the most common category
 fill_na_fac <- function(df){
-  for(i in colnames(df)){
-    text <- sprintf("df$\'%s\'", i)
-    res <- eval(parse(text = text))
-    if(is.factor(res)){
-        text2 <- sprintf("df$\'%s\'[is.na(df$\'%s\')] <- \"None\"", i, i)
+    for(i in colnames(df)){
+      text <- sprintf("df$\'%s\'", i)
+      res <- eval(parse(text = text))
+      if(is.factor(res)){
+        text2 <- sprintf("df$\'%s\'[is.na(df$\'%s\')] <- names(which.max(table(df$\'%s\')))", i, i, i)
         eval(parse(text = text2))
+      }
     }
-  }
-  
-  return(df)
+    return(df)
 }
 
 # Rename the problematic columns
@@ -107,3 +123,29 @@ rename_cols <- function(df){
   return(df)
 }
 
+# Add none's
+add_None <- function(df){
+  var_names <- c("BsmtQual",
+                 "BsmtCond",
+                 "BsmtExposure",
+                 "BsmtFinType1",
+                 "BsmtFinType2",
+                 "FireplaceQu",
+                 "GarageType",
+                 "GarageFinish",
+                 "GarageQual",
+                 "GarageCond",
+                 "PoolQC",
+                 "MiscFeature",
+                 "Fence")
+  for(i in var_names){
+    text <- sprintf("df$\'%s\'", i)
+    res <- eval(parse(text = text))
+    if(is.character(res)){
+      text2 <- sprintf("df$\'%s\'[is.na(df$\'%s\')] <- \"None\"", i, i)
+      eval(parse(text = text2))
+    }
+  }
+  
+  return(df)
+}

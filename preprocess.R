@@ -8,7 +8,7 @@ library(tidyverse)
 # @param Guess indicates whether missing factor values should be guess or 
 # if NA should be it's own level
 # @cutoff What the threshold is for removing a column due to too many NA values
-preprocess <- function(guess = T, cutoff = 0.1){
+preprocess <- function(cutoff = 0.1){
   
   # Read in the train and test data
   train <- read_csv("train.csv")
@@ -32,8 +32,8 @@ preprocess <- function(guess = T, cutoff = 0.1){
   numeric_complete_test <- fill_na_num(filtered_test)
   
   # Fill in the missing factor with the most common category
-  complete_train <- fill_na_fac(numeric_complete_train, guess)
-  complete_test <- fill_na_fac(numeric_complete_test, guess)
+  complete_train <- fill_na_fac(numeric_complete_train)
+  complete_test <- fill_na_fac(numeric_complete_test)
   
   
   # Return the final processed train and test set
@@ -86,18 +86,13 @@ fill_na_num <- function(df){
 }
 
 # Fill in the missing categorical data with the most common category
-fill_na_fac <- function(df, guess = T){
+fill_na_fac <- function(df){
   for(i in colnames(df)){
     text <- sprintf("df$\'%s\'", i)
     res <- eval(parse(text = text))
     if(is.factor(res)){
-      if(guess){
-        text2 <- sprintf("df$\'%s\'[is.na(df$\'%s\')] <- names(which.max(table(df$\'%s\')))", i, i, i)
+        text2 <- sprintf("df$\'%s\'[is.na(df$\'%s\')] <- \"None\"", i, i)
         eval(parse(text = text2))
-      }else{
-        text2 <- sprintf("df$\'%s\' <- addNA(df$\'%s\')", i, i)
-        eval(parse(text = text2))
-      }
     }
   }
   

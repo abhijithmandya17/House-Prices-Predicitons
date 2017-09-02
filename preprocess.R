@@ -19,14 +19,16 @@ preprocess <- function(cutoff = 0.1){
     add_None() %>% 
     to_factor()  %>% 
     fill_na_num() %>% 
-    fill_na_fac()
+    fill_na_fac() %>% 
+    scale_numeric()
   
   complete_test <- test %>% 
     rename_cols() %>% 
     add_None() %>% 
     to_factor()  %>% 
     fill_na_num() %>% 
-    fill_na_fac()
+    fill_na_fac() %>% 
+    scale_numeric()
   
   # Return the final processed train and test set
   ret <- list()
@@ -124,3 +126,35 @@ add_None <- function(df){
   
   return(df)
 }
+
+# Scale the numeric columns
+scale_numeric <- function(df){
+  for(i in colnames(df)){
+    text <- sprintf("df$\'%s\'", i)
+    res <- eval(parse(text = text))
+    if(is.numeric(res) && i != "Id"){
+      text2 <- sprintf("df$\'%s\' <- df$\'%s\'/sqrt(length(df$\'%s\')*sum((df$\'%s\' - mean(df$\'%s\'))^2))", i, i, i, i, i)
+      eval(parse(text = text2))
+    }
+  }
+  
+  return(df)
+}
+
+# ensure the results are repeatable
+set.seed(7)
+# load the library
+library(mlbench)
+library(caret)
+# load the data
+data(PimaIndiansDiabetes)
+# define the control using a random forest selection function
+control <- rfeControl(functions=rfFuncs, method="cv", number=10)
+# run the RFE algorithm
+results <- rfe(as.data.frame(train[,1:ncol(train) - 1]), as.data.frame(train[,ncol(train)]), rfeControl=control)
+# summarize the results
+print(results)
+# list the chosen features
+predictors(results)
+# plot the results
+plot(results, type=c("g", "o"))

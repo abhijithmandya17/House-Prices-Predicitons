@@ -25,10 +25,24 @@ for(i in 1:(ncol(train) - 1)){
 # test1 <- train[-n, -c(1, ncol(train))]
 # true <- train[-n, ncol(train)]
 
-rand <- randomForest(SalePrice ~ . - Id, train, ntree = 3000, importance = T)
+# All predictors
+rand <- randomForest(SalePrice ~ . - Id, train, ntree = 3000)
 preds <- predict(rand, test)
 
+# Only significant predictors from linear model
+rand2 <- randomForest(SalePrice ~ MSSubClass + MSZoning + LotArea + Street + 
+                        LandContour + Utilities + LotConfig + LandSlope + Neighborhood + 
+                        Condition1 + Condition2 + BldgType + OverallQual + OverallCond + 
+                        YearBuilt + YearRemodAdd + RoofStyle + RoofMatl + Exterior1st + 
+                        MasVnrType + MasVnrArea + ExterQual + BsmtQual + BsmtCond + 
+                        BsmtExposure + BsmtFinSF1 + BsmtFinSF2 + BsmtUnfSF + FirstFloorSF + 
+                        SecondFloorSF + BsmtFullBath + FullBath + BedroomAbvGr + 
+                        KitchenAbvGr + KitchenQual + TotRmsAbvGrd + Functional + 
+                        Fireplaces + GarageCars + GarageArea + GarageQual + GarageCond + 
+                        WoodDeckSF + ScreenPorch + PoolArea + PoolQC + Fence + MoSold + 
+                        SaleCondition, train, ntree = 1500)
+preds2 <- predict(rand2, test)
 
-results <- data.frame(as.integer(test$Id), preds)
+results <- data.frame(as.integer(test$Id), preds2)
 colnames(results) <- c("Id", "SalePrice")
 write_csv(results, "submission.csv")

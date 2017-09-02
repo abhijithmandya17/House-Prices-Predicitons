@@ -27,31 +27,6 @@ preprocess <- function(cutoff = 0.1){
     to_factor()  %>% 
     fill_na_num() %>% 
     fill_na_fac()
-  # # Rename 
-  # rename_train <- rename_cols(train)
-  # rename_test <- rename_cols(test)
-  # 
-  # # Add nones for NA's
-  # rename_train <- add_None(rename_train)
-  # rename_test <- add_None(rename_test)
-  # 
-  # # Convert all character to factors
-  # factor_train <- to_factor(rename_train)
-  # factor_test <- to_factor(rename_test)
-  # 
-  # # Remove columns with high NA density
-  # problem_columns <- drop_cols(train, 0.1)
-  # filtered_train <- factor_train[ , !(names(factor_train) %in% problem_columns)]
-  # filtered_test <- factor_test[ , !(names(factor_test) %in% problem_columns)]
-  # 
-  # # Fill in the missing numeric with mean
-  # numeric_complete_train <- fill_na_num(filtered_train)
-  # numeric_complete_test <- fill_na_num(filtered_test)
-  # 
-  # # Fill in the missing factor with the most common category
-  # complete_train <- fill_na_fac(numeric_complete_train)
-  # complete_test <- fill_na_fac(numeric_complete_test)
-  
   
   # Return the final processed train and test set
   ret <- list()

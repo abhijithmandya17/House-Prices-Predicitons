@@ -13,26 +13,30 @@ test <- res$test
 
 parametic.lm <- lm(SalePrice ~ . -Id, data = train)
 
-step(parametic.lm)
+summary(parametic.lm)
+
+step(parametic.lm,direction = "both")
+
+lm.1 <- lm(formula = SalePrice ~ MSSubClass + MSZoning + LotArea + Street + 
+     LandContour + Utilities + LotConfig + LandSlope + Neighborhood + 
+     Condition1 + Condition2 + BldgType + OverallQual + OverallCond + 
+     YearBuilt + YearRemodAdd + RoofStyle + RoofMatl + Exterior1st + 
+     MasVnrType + MasVnrArea + ExterQual + BsmtQual + BsmtCond + 
+     BsmtExposure + BsmtFinSF1 + BsmtFinSF2 + BsmtUnfSF + FirstFloorSF + 
+     SecondFloorSF + BsmtFullBath + FullBath + BedroomAbvGr + 
+     KitchenAbvGr + KitchenQual + TotRmsAbvGrd + Functional + 
+     Fireplaces + GarageCars + GarageArea + GarageQual + GarageCond + 
+     WoodDeckSF + ScreenPorch + PoolArea + PoolQC + Fence + MoSold + 
+     SaleCondition, data = train)
 
 summary(lm.1)
 
-# Let's subset to cross validate
-sub <- sample(1:1460,size=730)
-s1.train <- train[sub,]     # Select subset for cross-validation
-s1.valid <- train[-sub,]
+# Now let's make a prediction
+Prediction <- predict(lm.1, newdata = test)
 
-lm.1 <- lm(formula = SalePrice ~ MSSubClass + MSZoning + LotArea + Street + 
-             LandContour + Utilities + LotConfig + LandSlope + Neighborhood + 
-             Condition1 + Condition2 + BldgType + OverallQual + OverallCond + 
-             YearBuilt + YearRemodAdd + RoofStyle + RoofMatl + Exterior1st + 
-             MasVnrType + MasVnrArea + ExterQual + BsmtQual + BsmtCond + 
-             BsmtExposure + BsmtFinType1 + BsmtFinSF1 + BsmtFinSF2 + BsmtUnfSF + 
-             `1stFlrSF` + `2ndFlrSF` + FullBath + BedroomAbvGr + KitchenAbvGr + 
-             KitchenQual + TotRmsAbvGrd + Functional + Fireplaces + GarageFinish + 
-             GarageCars + GarageArea + GarageQual + GarageCond + WoodDeckSF + 
-             ScreenPorch + PoolArea + MoSold + SaleCondition, data = s1.train)
-
-# Let's try the full model on the validation set
-probs<-as.vector(predict(s1.lg,newdata=s1.valid, type="response"))
+#write a submission file
+Prediction <- data.frame(Prediction)
+submission <- cbind(test$Id,Prediction)
+colnames(submission) <- c("Id", "SalePrice")
+write.csv(submission, file = "linear_model.csv", row.names = FALSE)
 

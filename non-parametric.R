@@ -25,7 +25,7 @@ for(i in 1:(ncol(train) - 1)){
 # test1 <- train[-n, -c(1, ncol(train))]
 # true <- train[-n, ncol(train)]
 
-rand <- randomForest(SalePrice ~ . - Id, train, ntree = 2000, importance = T)
+rand <- randomForest(SalePrice ~ . - Id, train, ntree = 3000, importance = T)
 preds <- predict(rand, test)
 
 

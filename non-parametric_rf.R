@@ -8,7 +8,7 @@ source("preprocess.R")
 # This file houses the code for the non-parametric approach
 
 # Get the data in
-res <- preprocess(0.1)
+res <- preprocess()
 train <- as.data.frame(res$train)
 test <- as.data.frame(res$test)
 
@@ -20,9 +20,27 @@ for(i in 1:(ncol(train) - 1)){
 }
 
 # All predictors
-rand <- randomForest(SalePrice ~ . - Id, train, ntree = 3000)
+rand <- randomForest(SalePrice ~ . - Id, train, ntree = 10)
 preds <- predict(rand, test)
 
+# Perform cross validation to find the optimal number of predictors
+trainx <- train[, 1:ncol(train) - 1]
+trainy <- train[, ncol(train)]
+res <- rfcv(trainx, trainy)
+# Plot the error vs. the number of variables
+with(res, plot(n.var, error.cv, log="x", type="o", lwd=2))
+
+# Use the random forest model to ge the 20 most important predictors
+importance(rand)
+varImpPlot(rand, n.var = 20)
+
+# Remake the model using the 20 most important predictors
+rand2 <- randomForest(SalePrice ~ OverallQual + Neighborhood + GrLivArea +
+                        ExterQual + GarageCars + TotalBsmtSF + FirstFloorSF + 
+                        GarageArea + KitchenQual + SecondFloorSF + YearBuilt + 
+                        BsmtFinSF1 + BsmtQual + LotArea + FullBath + TotRmsAbvGrd + 
+                        FireplaceQu + Exterior2nd + YearRemodAdd + Exterior1st, 
+                        data = train, ntree = 400)
 preds2 <- predict(rand2, test)
 
 results <- data.frame(as.integer(test$Id), preds2)

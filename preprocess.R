@@ -5,9 +5,7 @@ library(tidyverse)
 # Preprocess --------------------------------------------------------------
 
 # Run the preprocessing script based on a given directory
-# @param Guess indicates whether missing factor values should be guess or 
-# if NA should be it's own level
-# @cutoff What the threshold is for removing a column due to too many NA values
+# @param scale, whether or not the numeric data should be standardized
 preprocess <- function(scale = F){
   
   # Read in the train and test data
@@ -43,7 +41,7 @@ preprocess <- function(scale = F){
   return(ret)
 }
 
-
+#### No longer needed thanks since we are using NA values as a category
 # Function to drop problem columns based on density of NA values
 drop_cols <- function(df, threshold){
   problem_columns <- c()
@@ -57,7 +55,8 @@ drop_cols <- function(df, threshold){
   return(problem_columns)
 }
 
-# Converts all characters columsn to factors
+
+# Converts all characters columns to factors
 to_factor <- function(df){
   for(i in colnames(df)){
     text <- sprintf("df$\'%s\'", i)
@@ -106,7 +105,7 @@ rename_cols <- function(df){
   return(df)
 }
 
-# Add none's
+# Convert NA's to their own category, called "None"
 add_None <- function(df){
   var_names <- c("BsmtQual",
                  "BsmtCond",

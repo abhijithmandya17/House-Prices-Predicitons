@@ -1,6 +1,9 @@
 # Kaggle Housing Competition
 library(tidyverse)
 library(DAAG)
+library(pls)
+library(tidyverse)
+
 source("preprocess.R")
 
 # This file houses the code for the parametric approach

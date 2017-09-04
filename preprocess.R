@@ -5,10 +5,8 @@ library(tidyverse)
 # Preprocess --------------------------------------------------------------
 
 # Run the preprocessing script based on a given directory
-# @param Guess indicates whether missing factor values should be guess or 
-# if NA should be it's own level
-# @cutoff What the threshold is for removing a column due to too many NA values
-preprocess <- function(cutoff = 0.1){
+# @param scale, whether or not the numeric data should be standardized
+preprocess <- function(scale = F){
   
   # Read in the train and test data
   train <- read_csv("train.csv")
@@ -19,7 +17,11 @@ preprocess <- function(cutoff = 0.1){
     add_None() %>% 
     to_factor()  %>% 
     fill_na_num() %>% 
-    fill_na_fac()
+    fill_na_fac() 
+  
+  if(scale){
+    complete_train <- scale_numeric(complete_train)
+  }
   
   complete_test <- test %>% 
     rename_cols() %>% 
@@ -28,6 +30,10 @@ preprocess <- function(cutoff = 0.1){
     fill_na_num() %>% 
     fill_na_fac()
   
+  if(scale){
+    complete_test <- scale_numeric(complete_test)
+  }
+  
   # Return the final processed train and test set
   ret <- list()
   ret$train <- complete_train
@@ -35,7 +41,7 @@ preprocess <- function(cutoff = 0.1){
   return(ret)
 }
 
-
+#### No longer needed thanks since we are using NA values as a category
 # Function to drop problem columns based on density of NA values
 drop_cols <- function(df, threshold){
   problem_columns <- c()
@@ -49,7 +55,8 @@ drop_cols <- function(df, threshold){
   return(problem_columns)
 }
 
-# Converts all characters columsn to factors
+
+# Converts all characters columns to factors
 to_factor <- function(df){
   for(i in colnames(df)){
     text <- sprintf("df$\'%s\'", i)
@@ -98,7 +105,7 @@ rename_cols <- function(df){
   return(df)
 }
 
-# Add none's
+# Convert NA's to their own category, called "None"
 add_None <- function(df){
   var_names <- c("BsmtQual",
                  "BsmtCond",
@@ -118,6 +125,20 @@ add_None <- function(df){
     res <- eval(parse(text = text))
     if(is.character(res)){
       text2 <- sprintf("df$\'%s\'[is.na(df$\'%s\')] <- \"None\"", i, i)
+      eval(parse(text = text2))
+    }
+  }
+  
+  return(df)
+}
+
+# Scale the numeric columns
+scale_numeric <- function(df){
+  for(i in colnames(df)){
+    text <- sprintf("df$\'%s\'", i)
+    res <- eval(parse(text = text))
+    if(is.numeric(res) && i != "Id"){
+      text2 <- sprintf("df$\'%s\' <- df$\'%s\'/sqrt(length(df$\'%s\')*sum((df$\'%s\' - mean(df$\'%s\'))^2))", i, i, i, i, i)
       eval(parse(text = text2))
     }
   }

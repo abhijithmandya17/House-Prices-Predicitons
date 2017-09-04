@@ -7,7 +7,7 @@ source("preprocess.R")
 # This file houses the code for the non-parametric approach
 
 # Get the data in
-res <- preprocess(0.1)
+res <- preprocess()
 train <- as.data.frame(res$train)
 test <- as.data.frame(res$test)
 

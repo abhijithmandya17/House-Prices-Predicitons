@@ -1,9 +1,6 @@
 # Kaggle Housing Competition
 library(tidyverse)
 library(DAAG)
-library(pls)
-library(tidyverse)
-
 source("preprocess.R")
 
 # This file houses the code for the parametric approach
@@ -57,7 +54,6 @@ cv.lm(train, lm.2, m=10, dots = FALSE, seed=21, plotit=TRUE, printit=TRUE)
 
 # Now let's make a prediction
 Prediction <- predict(lm.2, newdata = test)
-
 
 #write a submission file
 Prediction <- data.frame(Prediction)

@@ -30,8 +30,8 @@ summary(mod)
 gbm.perf(mod, method = "OOB")
 
 
-#Predict test data with 200 trees 
-predict <- predict(mod, test, n.trees = 2000, type = "response")
+#Predict test data with 2500 trees 
+predict <- predict(mod, test, n.trees = 2500, type = "response")
 
 #Create result set for submission
 results <- data.frame(as.integer(test$Id), predict)

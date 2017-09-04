@@ -31,9 +31,6 @@ lm.1 <- lm(formula = SalePrice ~ MSSubClass + MSZoning + LotArea + Street +
 
 summary(lm.1)
 
-# Do a principle component regression (chapter 6 of ISL)
-pcr.fit <- pcr(SalePrice ~ . - Id, data = train, scale = T, validation = "CV")
-
 # Now let's make a prediction
 Prediction <- predict(lm.1, newdata = test)
 

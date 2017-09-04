@@ -8,7 +8,7 @@ library(tidyverse)
 # @param Guess indicates whether missing factor values should be guess or 
 # if NA should be it's own level
 # @cutoff What the threshold is for removing a column due to too many NA values
-preprocess <- function(cutoff = 0.1){
+preprocess <- function(scale = F){
   
   # Read in the train and test data
   train <- read_csv("train.csv")
@@ -19,16 +19,22 @@ preprocess <- function(cutoff = 0.1){
     add_None() %>% 
     to_factor()  %>% 
     fill_na_num() %>% 
-    fill_na_fac() %>% 
-    scale_numeric()
+    fill_na_fac() 
+  
+  if(scale){
+    complete_train <- scale_numeric(complete_train)
+  }
   
   complete_test <- test %>% 
     rename_cols() %>% 
     add_None() %>% 
     to_factor()  %>% 
     fill_na_num() %>% 
-    fill_na_fac() %>% 
-    scale_numeric()
+    fill_na_fac()
+  
+  if(scale){
+    complete_test <- scale_numeric(complete_test)
+  }
   
   # Return the final processed train and test set
   ret <- list()
@@ -140,21 +146,3 @@ scale_numeric <- function(df){
   
   return(df)
 }
-
-# ensure the results are repeatable
-set.seed(7)
-# load the library
-library(mlbench)
-library(caret)
-# load the data
-data(PimaIndiansDiabetes)
-# define the control using a random forest selection function
-control <- rfeControl(functions=rfFuncs, method="cv", number=10)
-# run the RFE algorithm
-results <- rfe(as.data.frame(train[,1:ncol(train) - 1]), as.data.frame(train[,ncol(train)]), rfeControl=control)
-# summarize the results
-print(results)
-# list the chosen features
-predictors(results)
-# plot the results
-plot(results, type=c("g", "o"))

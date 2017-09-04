@@ -22,10 +22,13 @@ mod <- gbm.fit(x = train[,-81], y = train$SalePrice, distribution = "gaussian",
                n.tree = 3000, interaction.depth = 10, shrinkage = 0.01,
                n.minobsinnode = 10, verbose = T)
 
+
 #Model summary provides a ranking order of importance for each variable.
 summary(mod)
+
 #Provides a boundry tree number beyond which the learning stops 
-gbm.perf(mod)
+gbm.perf(mod, method = "OOB")
+
 
 #Predict test data with 200 trees 
 predict <- predict(mod, test, n.trees = 2000, type = "response")

@@ -27,4 +27,4 @@ preds2 <- predict(rand2, test)
 
 results <- data.frame(as.integer(test$Id), preds2)
 colnames(results) <- c("Id", "SalePrice")
-write_csv(results, "submission.csv")
+write_csv(results, "submission_rf.csv")

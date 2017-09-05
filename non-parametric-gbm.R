@@ -1,3 +1,5 @@
+# Ben Greenawald, Abhijith Mandya ,	Gregory Wert
+
 #Call library for gradient boost
 library("gbm")
 

@@ -1,3 +1,5 @@
+# Ben Greenawald, Abhijith Mandya ,	Gregory Wert
+
 # Kaggle Housing Competition
 
 library(randomForest)
@@ -19,8 +21,11 @@ for(i in 1:(ncol(train) - 1)){
   }
 }
 
+# Setseed for reproducibility
+set.seed(123)
+
 # All predictors
-rand <- randomForest(SalePrice ~ . - Id, train, ntree = 10)
+rand <- randomForest(SalePrice ~ . - Id, train, ntree = 3000)
 preds <- predict(rand, test)
 
 # Perform cross validation to find the optimal number of predictors
@@ -40,9 +45,10 @@ rand2 <- randomForest(SalePrice ~ OverallQual + Neighborhood + GrLivArea +
                         GarageArea + KitchenQual + SecondFloorSF + YearBuilt + 
                         BsmtFinSF1 + BsmtQual + LotArea + FullBath + TotRmsAbvGrd + 
                         FireplaceQu + Exterior2nd + YearRemodAdd + Exterior1st, 
-                        data = train, ntree = 400)
+                        data = train, ntree = 3000)
 preds2 <- predict(rand2, test)
+# This method did not outperform the full method
 
-results <- data.frame(as.integer(test$Id), preds2)
+results <- data.frame(as.integer(test$Id), preds)
 colnames(results) <- c("Id", "SalePrice")
 write_csv(results, "submission_rf.csv")

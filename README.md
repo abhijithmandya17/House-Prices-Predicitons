@@ -54,7 +54,7 @@ As predicted, on a complicated data set like this one, non-parametric methods ou
 
 The final submission was a for the gradient boosted random forest as it had by far the highest performance on the public Kaggle score. Below are the best result for each type of model created. Note that set.seed was not used so results are not necessarily reproducible to the last digit, these are merely the  highest Kaggle scores for submission using each algorithm.
 
-** Multiple Linear Regression Model: 0.16147
+* Multiple Linear Regression Model: 0.16147
 * KNN Regression: 0.18731
 * Random Forest: 0.15169
 * Random Forest with Gradient Boost: 0.12433

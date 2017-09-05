@@ -7,9 +7,9 @@ The [House Prices](https://www.kaggle.com/c/house-prices-advanced-regression-tec
 
 All team members participated in all parts of the assignment as to ensure even distribution of work, but the primary responsibilities of each team member was as follows:
 
-* Ben Greenawald - Github coordinator and primary author of the preprocessing script and random forest implementation.
+* Ben Greenawald - Github coordinator, primary author of the preprocessing script and random forest implementation.
 
-* Abhijith Mandya - Primary author of the linear model and gradient boost model.
+* Abhijith Mandya - Primary author of the linear model, gradient boost model and aided preprocess debugging.
 
 * Gregory Wert - Primary author of the KNN model.
 
@@ -17,33 +17,19 @@ All team members participated in all parts of the assignment as to ensure even d
 
 ## Methodology
 
-### Preprocessing
-Both the train and test data were run through a preprocessing script
-to ensure that the algorithms had clean data. The preprocessing pipeline was as follows.
+### Preprocessing and Data Exploration
+Both the train and test data were run through a preprocessing script to ensure that the algorithms had clean data. The preprocessing pipeline was as follows.
 * Read in raw data
-* Rename the columns whose names started with numbers as these caused problems with
-  some of the function used
-* Create a level for "NA" categorical variables. Note that per the data description
-  file, for most of the predictors, "NA" did not mean missing data, but instead meant 
-  something in the context of the data. For columns that has this property, the "NA" 
-  were replaced with "None" to allow this to be a level in the factor.
+* Rename the columns whose names started with numbers as these caused problems with some of the function used
+* Create a level for "NA" categorical variables. Note that per the data description file, for most of the predictors, "NA" did not mean   missing data, but instead meant something in the context of the data. For columns that has this property, the "NA"  were replaced with   "None" to allow this to be a level in the factor.
 * Convert all character columns to factors.
 * Replace any "NA" values in numeric columns with the mean of the column.
-* Replace any "NA" values in categorical variables with the most common factor level
-  for that column.
+* Replace any "NA" values in categorical variables with the most common factor level for that column.
 * Optionally, scale the numeric data in accordance with ISL 6.6.
 
 ### Parametric approach
-After preprocessing, a linear model was setup using all variables. Then, 
-this model was passed into the step function which did bidirectional variable
-selection to arrive at the best model using AIC as a metric. Using the output
-of the step function, the "vif" function was used to see if there was any
-multicollinearity in the new model. Some columns were found to have a high
-value of multicollinearity and were dropped as appropriate (while this brought up
-the R^2, the test MSE dropped). Independently, model were being tested using a 10-fold
-cross validation, and the model from the step function without multicolinear predictors
-also had the lowest average MSE from the cross validation, thus this model was clearly
-the superior choice.
+After preprocessing, a linear model was setup using all variables. Then, this model was passed into the step function which did bidirectional variable selection to arrive at the best model using AIC as a metric. Using the output of the step function, the "vif" function was used to see if there was any multicollinearity in the new model. Some columns were found to have a high value of multicollinearity and were dropped as appropriate (while this brought down the R^2, the test MSE dropped). Independently, models were being tested using a 10-fold cross validation, and the model from the step function without multicolinear predictors
+also had the lowest average MSE from the cross validation, thus this model was clearly the superior choice.
 
 ### Non-parametric approach
 
@@ -56,7 +42,9 @@ The KNN did not yield the results that we were hoping for. Because we can only u
 
 #### Gradient Boost
 
-The random forest was an improvement on the random forest model, but still was not giving us the results that we wanted. 
+The random forest was an improvement on the KNN model, but still was not giving us the results that we wanted. SO we stepped up the game and tried our hand at a gradient boost. 
+Boosting is based on weak learners (high bias, low variance). Weak learners are shallow trees, sometimes even as small as  two leaves. Boosting reduces error mainly by reducing bias and to some extent variance, by aggregating the output from many models. Trees are built sequentially while in random forest, they're built in parallel fashion. Since, the data seemed to be tending to wards non-linearity, we felt using a higher biased method if tuned correctly could improve our accuracy. 
+As it turns out, we were able to significantly reduce our score. We initally used 3000 trees with a predictor interaction depth(interactivity between predictors) of 10. Upon cross validation, we found the the learning plateaued at 452 trees but multiple submissions with higher trees yielded a lower score so we stopped at 2500 for the predicition.  
 
 ## Findings
 
@@ -64,9 +52,13 @@ As predicted, on a complicated data set like this one, non-parametric methods ou
 
 ## Conclusion and Kaggle Score
 
-The final submission was a for the gradient boosted random forest as it had by far the highest performance on the public Kaggle score. Below are the best result for each type of model created. Note that set.seed was not used so results are not necessarily reproducible, these are merely the  highest Kaggle scores for submission using each algorithm.
+The final submission was a for the gradient boosted random forest as it had by far the highest performance on the public Kaggle score. Below are the best result for each type of model created. Note that set.seed was not used so results are not necessarily reproducible to the last digit, these are merely the  highest Kaggle scores for submission using each algorithm.
 
-* Multiple Linear Regression Model: 0.16147
+** Multiple Linear Regression Model: 0.16147
 * KNN Regression: 0.18731
 * Random Forest: 0.15169
-* Random Forest with Gradient Boost: 0.12534
+* Random Forest with Gradient Boost: 0.12433
+
+## Way Forward
+
+Given time we can explore the dataset in more ways. Log transformations of dependent variable as well as some of the numerical variables may yield some interesting outcomes. Certain other non-parametric algorithms like support vector machines and paametric ones like LASSO could yield better results.   
